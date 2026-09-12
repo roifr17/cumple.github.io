@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feliz cumpleaños mi amor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; overflow:hidden; }
+  body{
+    background: linear-gradient(160deg,#ff9a8b 0%, #ff6fae 35%, #a86bd6 70%, #5b4bcf 100%);
+    font-family:'Jost', sans-serif;
+    position:relative;
+  }
+
+  #confetti{ position:fixed; inset:0; pointer-events:none; z-index:2; }
+
+  .scene{ position:relative; z-index:1; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:6vh 6vw; }
+
+  .balloon{
+    position:absolute; bottom:-140px; width:70px; height:90px; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: rise linear infinite;
+    opacity:0.92;
+  }
+  .balloon::after{
+    content:''; position:absolute; left:50%; top:100%; width:1px; height:120px; background:rgba(255,255,255,0.5); transform:translateX(-50%);
+  }
+  @keyframes rise{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); }
+    50%{ transform:translateY(-60vh) translateX(20px) rotate(4deg); }
+    100%{ transform:translateY(-125vh) translateX(-10px) rotate(-4deg); }
+  }
+
+  .title{
+    font-family:'Pacifico', cursive;
+    font-size:clamp(2.6rem,8vw,5rem);
+    color:#fff;
+    text-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    line-height:1.25;
+  }
+  .subtitle{
+    margin-top:1.2rem;
+    font-size:clamp(1rem,2.4vw,1.3rem);
+    color:#fff3f8;
+    letter-spacing:1px;
+    font-weight:300;
+  }
+  .hearts-row{
+    margin-top:2rem;
+    font-size:1.6rem;
+  }
+  .hearts-row span{
+    display:inline-block;
+    animation: pop 1.6s ease-in-out infinite;
+  }
+  .hearts-row span:nth-child(2){ animation-delay:0.2s; }
+  .hearts-row span:nth-child(3){ animation-delay:0.4s; }
+  .hearts-row span:nth-child(4){ animation-delay:0.6s; }
+  .hearts-row span:nth-child(5){ animation-delay:0.8s; }
+  @keyframes pop{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.3); }
+  }
+
+  .garland{
+    position:absolute; top:0; left:0; right:0; height:120px; z-index:1; pointer-events:none;
+  }
+
+  .cake{ margin-top:2.4rem; font-size:2.6rem; }
+
+  @media (prefers-reduced-motion: reduce){
+    .balloon{ animation:none; opacity:0; }
+    .hearts-row span{ animation:none; }
+  }
+</style>
+</head>
+<body>
+<audio id="miSonido" src="/cancion.mp3" loop preload="auto"></audio>
+
+<button id="btnSonido" style="position:fixed; top:16px; right:16px; z-index:5; background:rgba(255,255,255,0.25); border:none; color:#fff; font-size:1.3rem; width:44px; height:44px; border-radius:50%; cursor:pointer;">
+  🔇
+</button>
+<svg class="garland" viewBox="0 0 1000 120" preserveAspectRatio="none">
+  <path d="M0,10 Q250,90 500,10 T1000,10" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2"/>
+  <g id="flags"></g>
+</svg>
+
+<canvas id="confetti"></canvas>
+
+<div class="scene">
+  <div class="title">¡Feliz cumpleaños,<br>mi amor!</div>
+  <div class="subtitle">HOY CELEBRAMOS A LA PERSONA MÁS IMPORTANTE DE MI VIDA, QUE CUMPLE 19 AÑITOS TE AMO MUCHO BEBE PASATELA BIEN EL DIA DE HOY😘💗</div>
+  <div class="hearts-row"><span>💗</span><span>🎉</span><span>💗</span><span>🎂</span><span>💗</span></div>
+</div>
+
+<div id="balloons"></div>
+
+<script>
+
+  const audio = document.getElementById('miSonido');
+  const btnSonido = document.getElementById('btnSonido');
+  let sonidoActivo = false;
+
+  btnSonido.addEventListener('click', () => {
+    if (!sonidoActivo) {
+      audio.play();
+      btnSonido.textContent = '🔊';
+    } else {
+      audio.pause();
+      btnSonido.textContent = '🔇';
+    }
+    sonidoActivo = !sonidoActivo;
+  });
+
+  // Banderines de la guirnalda
+  const flagColors = ['#ffd166','#f0a8c9','#8b6fd6','#ffffff','#ff9a8b'];
+  const flagsGroup = document.getElementById('flags');
+  const totalFlags = 14;
+  for(let i=0;i<totalFlags;i++){
+    const x = (1000/(totalFlags-1))*i;
+    const y = 10 + Math.sin((i/(totalFlags-1))*Math.PI)*70;
+    const color = flagColors[i % flagColors.length];
+    const tri = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    tri.setAttribute('points', `${x-9},${y} ${x+9},${y} ${x},${y+22}`);
+    tri.setAttribute('fill', color);
+    tri.setAttribute('opacity', '0.9');
+    flagsGroup.appendChild(tri);
+  }
+
+  // Globos
+  const balloonColors = ['#ff6fae','#ffd166','#a86bd6','#ff9a8b','#7fd6c0'];
+  const balloonsContainer = document.getElementById('balloons');
+  const totalBalloons = 9;
+  for(let i=0;i<totalBalloons;i++){
+    const b = document.createElement('div');
+    b.className = 'balloon';
+    b.style.left = (Math.random()*90)+'vw';
+    b.style.background = balloonColors[i % balloonColors.length];
+    b.style.animationDuration = (10+Math.random()*8)+'s';
+    b.style.animationDelay = (Math.random()*10)+'s';
+    balloonsContainer.appendChild(b);
+  }
+
+  // Confeti cayendo
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const confettiColors = ['#ffd166','#ff6fae','#a86bd6','#ffffff','#ff9a8b'];
+  const pieces = Array.from({length:90}, ()=>({
+    x: Math.random()*window.innerWidth,
+    y: Math.random()*-window.innerHeight,
+    r: Math.random()*5+3,
+    speed: Math.random()*1.4+0.6,
+    drift: Math.random()*1-0.5,
+    rot: Math.random()*Math.PI,
+    rotSpeed: (Math.random()-0.5)*0.06,
+    color: confettiColors[Math.floor(Math.random()*confettiColors.length)]
+  }));
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function drawConfetti(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(const p of pieces){
+      p.y += p.speed;
+      p.x += p.drift;
+      p.rot += p.rotSpeed;
+      if(p.y > canvas.height + 10){
+        p.y = -10;
+        p.x = Math.random()*canvas.width;
+      }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*1.6);
+      ctx.restore();
+    }
+    if(!reduceMotion) requestAnimationFrame(drawConfetti);
+  }
+  if(!reduceMotion) requestAnimationFrame(drawConfetti);
+</script>
+
+</body>
+</html>
